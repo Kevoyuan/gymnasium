@@ -1,1 +1,5 @@
 */__pycache__/
+temp/*
+pages/acrobot_page.py
+.DS_Store
+test.py

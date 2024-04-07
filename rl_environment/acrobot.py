@@ -1,12 +1,16 @@
 import gymnasium as gym
 import numpy as np
 import streamlit as st
+import matplotlib.pyplot as plt
+import time
+
 
 class AcrobotAgent:
     def __init__(self, learning_rate=0.1, discount_factor=0.95):
-        self.env = gym.make('Acrobot-v1')
+        self.env = gym.make('Acrobot-v1', render_mode="rgb_array")
         self.learning_rate = learning_rate
         self.discount_factor = discount_factor
+        self.env.reset()
         bins = 10
         # Assuming each of the 6 state variables is discretized into 'bins' number of discrete values
         self.q_table = np.zeros((bins**self.env.observation_space.shape[0], self.env.action_space.n))
@@ -83,12 +87,45 @@ class AcrobotAgent:
         self.q_table[discrete_state, action] = new_q
 
 
-    def render(self, episodes=1):
+    def render(self, episodes):
+        frames = []
         for episode in range(episodes):
-            state = self.env.reset()
+            self.env.reset()
             done = False
+            episode_start_time = time.time()  # Start time of the episode
+            
             while not done:
-                self.env.render()
-                action = self.env.action_space.sample()  # Replace with your policy
-                state, reward, done, info = self.env.step(action)
+                action = self.env.action_space.sample()  # Sample a random action
+                _, _, done, _, _ = self.env.step(action)
+                
+                # Capture the current time to show on the stopwatch
+                current_time = time.time()
+                elapsed_time = current_time - episode_start_time  # Stopwatch time
+
+                frame = self.env.render()  # Capture frame
+
+                # Create an annotated frame with Matplotlib
+                fig, ax = plt.subplots()
+                ax.imshow(frame)
+                # Annotation text for episode and stopwatch time
+                annotation_text = f'Action: {action}, Elapsed Time: {elapsed_time:.2f}s'
+                ax.text(0.5, 0.95, annotation_text, color='white', transform=ax.transAxes, 
+                        ha='center', va='top', fontsize=8, bbox=dict(facecolor='black', alpha=0.7))
+                ax.axis('off')
+
+                # Convert Matplotlib figure to an image array
+                fig.canvas.draw()
+                image = np.frombuffer(fig.canvas.tostring_rgb(), dtype='uint8')
+                image = image.reshape(fig.canvas.get_width_height()[::-1] + (3,))
+
+                frames.append(image)  # Append the annotated frame
+
+                plt.close(fig)  # Close the figure to free up memory
+
+            episode_end_time = time.time()  # Record the end time of the episode
+            episode_duration = episode_end_time - episode_start_time  # Calculate the duration of the episode
+            # If you want to print or log the duration of each episode, you can do it here
+            st.text(f'duration: {episode_duration:.2f}s')
+
         self.env.close()
+        return frames
