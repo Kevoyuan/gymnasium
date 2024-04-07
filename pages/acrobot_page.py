@@ -1,58 +1,32 @@
 import streamlit as st
-from rl_environment import acrobot  # Import your acrobot environment setup
-from PIL import Image
+from rl_environment.acrobot import AcrobotAgent
+import matplotlib.pyplot as plt
+import numpy as np
 
-def app():
-    st.title('Acrobot Environment with Q-learning')
+st.title('Acrobot Reinforcement Learning')
 
-    # Ensure all necessary session state variables are initialized upfront
-    if 'exploration_rate' not in st.session_state:
-        st.session_state.exploration_rate = acrobot.exploration_rate
-    if 'state' not in st.session_state or 'discrete_state' not in st.session_state:
-        reset_environment()
+# Sidebar for configuration
+st.sidebar.header('Configuration')
+learning_rate = st.sidebar.slider('Learning Rate', min_value=0.01, max_value=0.5, value=0.1, step=0.01)
+discount_factor = st.sidebar.slider('Discount Factor', min_value=0.8, max_value=0.99, value=0.95, step=0.01)
+episodes = st.sidebar.slider('Episodes', min_value=10, max_value=1000, value=100)
 
-    # Reset Environment button
-    if st.button('Reset Environment'):
-        reset_environment()
+if st.sidebar.button('Train Agent'):
+    with st.spinner('Training...'):
+        agent = AcrobotAgent(learning_rate=learning_rate, discount_factor=discount_factor)
+        rewards = agent.train(episodes=episodes)  # This method now returns a list of rewards per episode
 
-    # Take Step button
-    if st.button('Take Step') and not st.session_state.done:
-        take_step()
+    # Plotting the rewards
+    fig, ax = plt.subplots()
+    ax.plot(rewards)
+    ax.set_xlabel('Episode')
+    ax.set_ylabel('Total Reward')
+    ax.set_title('Training Progress')
+    st.pyplot(fig)
 
-    # Render Environment button
-    if st.button('Render Environment'):
-        render_environment()
 
-    # Display total reward
-    st.text(f"Total Reward: {st.session_state['total_reward']}")
-
-def reset_environment():
-    st.session_state.state = acrobot.env.reset()
-    st.text(f"Initial State: {st.session_state.state}")
-    st.session_state.discrete_state = acrobot.discretize_state(st.session_state.state)
-    st.text(f"Initial Discrete State: {st.session_state.discrete_state}")
-    st.session_state.done = False
-    st.session_state.total_reward = 0
-
-def take_step():
-    action = acrobot.choose_action(st.session_state.discrete_state)
-    new_state, reward, done, _ = acrobot.step_environment(st.session_state.state, action)
-    acrobot.update_q_table(st.session_state.discrete_state, new_state, action, reward, done)
-    st.session_state.state = new_state
-    st.session_state.discrete_state = acrobot.discretize_state(new_state)
-    st.session_state.done = done
-    st.session_state.total_reward += reward
-    st.session_state.exploration_rate = max(acrobot.min_exploration_rate, acrobot.exploration_rate * acrobot.exploration_decay_rate)
-    # Update the display
-    update_display(action, reward, done)
-
-def render_environment():
-    img = Image.fromarray(acrobot.env.render(mode='rgb_array'))
-    st.image(img, caption='Current State of the Acrobot Environment')
-
-def update_display(action, reward, done):
-    # Display updated information
-    st.write(f"Action Taken: {action}, Reward: {reward}, Done: {done}")
-
-if __name__ == '__main__':
-    app()
+# Optional: Provide a button to visualize the model's behavior after training
+if st.button('Render Environment'):
+    # This assumes you have a method to capture and show the environment rendering.
+    # For example, saving render frames and displaying them as a video or gif.
+    st.write('This feature requires implementation.')
