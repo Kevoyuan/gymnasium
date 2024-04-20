@@ -74,7 +74,8 @@ To set up the Streamlit Game Integration Project, follow these instructions:
 
 ## Functions
 ![image](https://github.com/Kevoyuan/gymnasium/assets/74452488/5527eec6-ba3f-42fb-929c-059e26a9d5ed)
-![image](https://github.com/Kevoyuan/gymnasium/assets/74452488/3e5eb78e-e750-44cb-a015-e3be87f033c7)
+
+![acrobot_animation](https://github.com/Kevoyuan/gymnasium/assets/74452488/900f25f4-d350-4a05-9517-18a4c179b7d4)
 
 
 ## Contributing
