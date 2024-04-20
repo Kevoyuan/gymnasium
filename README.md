@@ -13,9 +13,8 @@ This project brings an array of games into the Streamlit framework, creating int
 
 ## List of Games
 
-- Game 1
-- Game 2
-- Game 3
+- Acrobot
+- Cart Pole
 - _More coming soon..._
 
 ## Installation
@@ -72,6 +71,11 @@ To set up the Streamlit Game Integration Project, follow these instructions:
 9. **Open the Application**:
 
     Visit `localhost:8501` in your web browser or follow the terminal instructions.
+
+## Functions
+![image](https://github.com/Kevoyuan/gymnasium/assets/74452488/5527eec6-ba3f-42fb-929c-059e26a9d5ed)
+![image](https://github.com/Kevoyuan/gymnasium/assets/74452488/3e5eb78e-e750-44cb-a015-e3be87f033c7)
+
 
 ## Contributing
 
