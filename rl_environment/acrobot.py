@@ -90,53 +90,52 @@ class AcrobotAgent:
     def render(self, episodes):
         frames = []
         for episode in range(episodes):
-            self.env.reset()
+            state = self.env.reset()
             done = False
             episode_start_time = time.time()  # Start time of the episode
 
             while not done:
-                action = self.env.action_space.sample()  # Sample a random action
-                _, _, done, _, _ = self.env.step(action)
+                current_state = self.discretize_state(state)
+                action = np.argmax(self.q_table[current_state])  # Choose best action based on Q-table
+                action = np.clip(action, 0, self.env.action_space.n - 1)  # Ensure valid action
 
-                # Capture the current time to show on the stopwatch
-                current_time = time.time()
-                elapsed_time = current_time - episode_start_time  # Stopwatch time
+                state, reward, done, info, _ = self.env.step(action)  # Perform action
+                if episode == episodes-1: 
+                    # Capture the current time to show on the stopwatch
+                    elapsed_time = time.time() - episode_start_time  # Stopwatch time
+                    frame = self.env.render()  # Capture frame
 
-                frame = self.env.render()  # Capture frame
+                    # Create an annotated frame with Matplotlib
+                    fig, ax = plt.subplots()
+                    ax.imshow(frame)
+                    annotation_text = f"Episode: {episode + 1}, Action: {action}, Elapsed Time: {elapsed_time:.2f}s, Reward: {reward}"
+                    ax.text(
+                        0.5,
+                        0.95,
+                        annotation_text,
+                        color="white",
+                        transform=ax.transAxes,
+                        ha="center",
+                        va="top",
+                        fontsize=8,
+                        bbox=dict(facecolor="black", alpha=0.7),
+                    )
+                    ax.axis("off")
 
-                # Create an annotated frame with Matplotlib
-                fig, ax = plt.subplots()
-                ax.imshow(frame)
-                # Annotation text for episode and stopwatch time
-                annotation_text = f"Action: {action}, Elapsed Time: {elapsed_time:.2f}s"
-                ax.text(
-                    0.5,
-                    0.95,
-                    annotation_text,
-                    color="white",
-                    transform=ax.transAxes,
-                    ha="center",
-                    va="top",
-                    fontsize=8,
-                    bbox=dict(facecolor="black", alpha=0.7),
-                )
-                ax.axis("off")
+                    # Convert Matplotlib figure to an image array
+                    fig.canvas.draw()
+                    image = np.frombuffer(fig.canvas.tostring_rgb(), dtype="uint8")
+                    image = image.reshape(fig.canvas.get_width_height()[::-1] + (3,))
 
-                # Convert Matplotlib figure to an image array
-                fig.canvas.draw()
-                image = np.frombuffer(fig.canvas.tostring_rgb(), dtype="uint8")
-                image = image.reshape(fig.canvas.get_width_height()[::-1] + (3,))
+                    frames.append(image)  # Append the annotated frame
 
-                frames.append(image)  # Append the annotated frame
-
-                plt.close(fig)  # Close the figure to free up memory
+                    plt.close(fig)  # Close the figure to free up memory
 
             episode_end_time = time.time()  # Record the end time of the episode
-            episode_duration = (
-                episode_end_time - episode_start_time
-            )  # Calculate the duration of the episode
-            # If you want to print or log the duration of each episode, you can do it here
-            st.text(f"duration: {episode_duration:.2f}s")
+            episode_duration = episode_end_time - episode_start_time  # Calculate the duration
+            if episode == episodes-1:  # Log the duration only for the last episode
+                st.info(f"Episode {episode + 1} duration: {episode_duration:.2f}s")
+
 
         self.env.close()
         return frames

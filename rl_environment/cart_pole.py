@@ -68,8 +68,10 @@ class CartPoleAgent:
 
                 current_state = next_state
                 total_reward += reward
+                # st.info(f"Episode: {episode + 1}, Total Reward: {total_reward}")
             self.epsilon *= self.epsilon_decay  # Decay the exploration rate after each episode
             rewards.append(total_reward)
+        st.info(f"Episode: {episode + 1}, Total Reward: {total_reward}")
         return rewards
 
     def render(self, episodes):
