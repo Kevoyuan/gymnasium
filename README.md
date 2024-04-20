@@ -78,11 +78,6 @@ To set up the Streamlit Game Integration Project, follow these instructions:
 ![acrobot_animation](https://github.com/Kevoyuan/gymnasium/assets/74452488/900f25f4-d350-4a05-9517-18a4c179b7d4)
 
 
-## Contributing
-
-We welcome contributions to expand our game library. Feel free to fork the repository, make your additions, and submit a pull request with your changes.
-
-
 ## Support
 
 For issues or questions, please file an issue on the GitHub repository.
